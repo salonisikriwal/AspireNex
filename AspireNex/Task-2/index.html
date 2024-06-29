@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quick Quiz</title> 
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #97d0df, #645fdd);
+            font-family: Arial, sans-serif;
+        }
+        .quiz-section {
+            background-color: #fff;
+            padding: 1rem;
+            max-width: 600px;
+            width: 90%;
+            border-radius: 1rem;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        ul {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            gap: 1rem;
+            padding: 1rem;
+            margin: 0;
+        }
+        li {
+            list-style: none;
+            width: 100%;
+            border-radius: 2rem;
+            border: 0.2rem solid rgb(224, 224, 224);
+            padding: 1rem;
+            font-size: 1.2rem;
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+        label {
+            padding-left: 1rem;
+        }
+        input[type="radio"]:checked + label {
+            background-color: #8ec5fc;
+            border-color: #8ec5fc;
+        }
+        .btn {
+            display: flex;
+            justify-content: center;
+            margin-top: 1rem;
+        }
+        button {
+            padding: 1rem 2rem;
+            border-radius: 2rem;
+            background-color: #192c63;
+            border: none;
+            color: #fff;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .result {
+            padding: 2rem;
+            background-color: #fff;
+            border-radius: 0.5rem;
+            box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
+            text-align: center;
+        }
+        .result h2 {
+            font-size: 2rem;
+        }
+        .result p {
+            font-size: 1.2rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="quiz-section">
+        <div id="quiz">
+            <h2 class="question" id="question">Quick Quiz</h2>
+            <hr>
+            <ul>
+                <li>
+                    <input type="radio" name="answer" class="answer" id="a1"/>
+                    <label for="a1" id="option_1">Quiz Option</label> 
+                </li>
+                <li>
+                    <input type="radio" name="answer" class="answer" id="a2"/>
+                    <label for="a2" id="option_2">Quiz Option</label>
+                </li>
+                <li>
+                    <input type="radio" name="answer" class="answer" id="a3"/>
+                    <label for="a3" id="option_3">Quiz Option</label>
+                </li>
+                <li>
+                    <input type="radio" name="answer" class="answer" id="a4"/>
+                    <label for="a4" id="option_4">Quiz Option</label>
+                </li>
+            </ul>
+            <hr>
+            <div class="btn">
+                <button type="submit" id="submit">Submit</button>
+            </div>
+        </div>
+    </div>
+<script>
+    const quizData = [
+        {
+            question: "What does HTML stand for?",
+            options: [
+                "Hyper Text Markup Language",
+                "Home Tool Markup Language",
+                "Hyperlinks and Text Markup Language",
+                "Hypertext and Markup Language"
+            ],
+            correct: 0,
+        },
+        {
+            question: "Which CSS property is used to control the spacing between elements?",
+            options: ["margin", "padding", "spacing", "border-spacing"],
+            correct: 1,
+        },
+        {
+            question: "What is the JavaScript function used to select an HTML element by its id?",
+            options: ["getElementById", "selectElementById", "select", "selectById"],
+            correct: 0,
+        },
+        {
+            question: "What is the correct way to include external CSS in an HTML document?",
+            options: ["<link href='styles.css' rel='stylesheet'>", "<link href='styles.css' type='text/css'>", "<link rel='stylesheet' href='styles.css'>", "<link href='styles.css' type='text/css' rel='stylesheet'>"],
+            correct: 2,
+        },
+        {
+            question: "Which HTML element is used to define a container for content?",
+            options: ["div", "header", "section", "main"],
+            correct: 0,
+        },
+    ];
+
+    const quiz = document.querySelector('#quiz');
+    const answerElm = document.querySelectorAll(".answer");
+    const [questionElm, ...optionElms] = document.querySelectorAll("#question, #option_1, #option_2, #option_3, #option_4");
+    const submitBtn = document.querySelector("#submit");
+
+    let currentQuiz = 0;
+    let score = 0;
+
+    const loadQuiz = () => {
+        const { question, options } = quizData[currentQuiz];
+        questionElm.innerText = `${currentQuiz + 1}: ${question}`;
+        options.forEach((curOption, index) => {
+            optionElms[index].innerText = curOption;
+        });
+    };
+
+    loadQuiz();
+
+    const getSelectedOption = () => {
+        return Array.from(answerElm).findIndex(curElem => curElem.checked);
+    };
+
+    const deselectAnswers = () => {
+        answerElm.forEach(curElem => curElem.checked = false);
+    };
+
+    const confettiBlast = () => {
+        confetti({
+            particleCount: 100,
+            spread: 70,
+            origin: { y: 0.6 }
+        });
+    };
+
+    submitBtn.addEventListener("click", () => {
+        const selectedOptionIndex = getSelectedOption();
+
+        if (selectedOptionIndex === quizData[currentQuiz].correct) {
+            score += 1;
+        }
+
+        currentQuiz++;
+
+        if (currentQuiz < quizData.length) {
+            deselectAnswers();
+            loadQuiz();
+        } else {
+            quiz.innerHTML = `<div class="result">
+                <h2>Your Score: ${score}/${quizData.length} Correct Answers 🎉</h2>
+                <p>Congratulations, you've completed the quiz!</p>
+                <button class="reload-button" onclick="location.reload()">Restart Quiz</button>
+            </div>`;
+            confettiBlast();
+        }
+    });
+</script>
+</body>
+</html>
